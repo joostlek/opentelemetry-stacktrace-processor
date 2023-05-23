@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "opentelemetry-stacktrace-processor"
+version = "0.0.0"
+description = "OpenTelemetry processor to improve stacktraces gathered from Javascript applications."
+authors = ["Joost Lekkerkerker <joostlek@outlook.com>"]
+maintainers = ["Joost Lekkerkerker <joostlek@outlook.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[tool.poetry.group.dev.dependencies]
+codespell = "2.2.4"
+pre-commit = "3.3.1"
+pre-commit-hooks = "4.4.0"
+yamllint = "1.31.0"
