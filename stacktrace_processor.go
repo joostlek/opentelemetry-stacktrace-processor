@@ -16,9 +16,40 @@ import (
 
 type stackTraceProcessor struct {
 	nextConsumer consumer.Traces
+	sourceMaps   map[string][]byte
 }
 
 func (s *stackTraceProcessor) Start(ctx context.Context, host component.Host) error {
+	s.sourceMaps = make(map[string][]byte)
+	files, err := os.ReadDir("testdata")
+	if err != nil {
+		return err
+	}
+	for _, file := range files {
+		if strings.HasSuffix(file.Name(), ".map") {
+			err := s.ReadSourceMap("testdata", file.Name())
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (s *stackTraceProcessor) ReadSourceMap(path string, name string) error {
+	fullPath := fmt.Sprintf("%s/%s", path, name)
+	if path == "" {
+		fullPath = name
+	}
+	file, err := os.Open(fullPath)
+	if err != nil {
+		return err
+	}
+	b, err := io.ReadAll(file)
+	if err != nil {
+		return err
+	}
+	s.sourceMaps[name] = b
 	return nil
 }
 
@@ -35,36 +66,36 @@ func (s *stackTraceProcessor) ConsumeTraces(ctx context.Context, td ptrace.Trace
 		resourceSpan := td.ResourceSpans().At(resourceSpanId)
 		sdkLanguage, valid := resourceSpan.Resource().Attributes().Get("telemetry.sdk.language")
 		if valid && sdkLanguage.Str() == "webjs" {
-			ConsumeScopeSpans(resourceSpan.ScopeSpans())
+			s.ConsumeScopeSpans(resourceSpan.ScopeSpans())
 		}
 	}
 	return s.nextConsumer.ConsumeTraces(ctx, td)
 }
 
-func ConsumeScopeSpans(scopeSpans ptrace.ScopeSpansSlice) {
+func (s *stackTraceProcessor) ConsumeScopeSpans(scopeSpans ptrace.ScopeSpansSlice) {
 	for scopeSpanId := 0; scopeSpanId < scopeSpans.Len(); scopeSpanId++ {
 		spans := scopeSpans.At(scopeSpanId).Spans()
-		ConsumeSpans(spans)
+		s.ConsumeSpans(spans)
 	}
 }
 
-func ConsumeSpans(spans ptrace.SpanSlice) {
+func (s *stackTraceProcessor) ConsumeSpans(spans ptrace.SpanSlice) {
 	for spanId := 0; spanId < spans.Len(); spanId++ {
 		span := spans.At(spanId)
-		ConsumeSpan(span)
+		s.ConsumeSpan(span)
 	}
 }
 
-func ConsumeSpan(span ptrace.Span) {
+func (s *stackTraceProcessor) ConsumeSpan(span ptrace.Span) {
 	for eventId := 0; eventId < span.Events().Len(); eventId++ {
 		event := span.Events().At(eventId)
 		if event.Name() == "exception" {
-			ConsumeException(event)
+			s.ConsumeException(event)
 		}
 	}
 }
 
-func ConsumeException(event ptrace.SpanEvent) {
+func (s *stackTraceProcessor) ConsumeException(event ptrace.SpanEvent) {
 	stacktrace, valid := event.Attributes().Get("exception.stacktrace")
 	if valid != true {
 		return
@@ -93,27 +124,21 @@ func ConsumeException(event ptrace.SpanEvent) {
 			res = append(res, line)
 			continue
 		}
-		file, err := os.Open(fmt.Sprintf("%s.map", sourceFile))
-		if err != nil {
-			res = append(res, line)
-			continue
-		}
-		b, err := io.ReadAll(file)
+		mapFileName := fmt.Sprintf("%s.map", sourceFile)
+
+		smap, err := sourcemap.Parse(sourceFile, s.sourceMaps[mapFileName])
 		if err != nil {
 			res = append(res, line)
 			continue
 		}
 
-		smap, err := sourcemap.Parse(sourceFile, b)
-		if err != nil {
-			panic(err)
+		finalFile, _, sourceLine, sourceColumn, ok := smap.Source(mapLine, mapColumn)
+		if ok != true {
+			res = append(res, line)
+			continue
 		}
-
-		finalFile, fn, sourceLine, sourceColumn, ok := smap.Source(mapLine, mapColumn)
-		fmt.Println(finalFile, fn, sourceLine, sourceColumn, ok)
 		res = append(res, fmt.Sprintf("%s@%s:%d:%d", trace, finalFile, sourceLine, sourceColumn))
 	}
-	fmt.Println(res)
 	event.Attributes().PutStr("exception.stacktrace", strings.Join(res, "\n"))
 }
 
