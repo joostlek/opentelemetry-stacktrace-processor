@@ -100,7 +100,7 @@ func (s *stackTraceProcessor) ConsumeSpan(span ptrace.Span) {
 
 func (s *stackTraceProcessor) ConsumeException(event ptrace.SpanEvent) {
 	stacktrace, valid := event.Attributes().Get("exception.stacktrace")
-	if valid != true {
+	if !valid {
 		return
 	}
 	var res []string
@@ -136,7 +136,7 @@ func (s *stackTraceProcessor) ConsumeException(event ptrace.SpanEvent) {
 		}
 
 		finalFile, _, sourceLine, sourceColumn, ok := smap.Source(mapLine, mapColumn)
-		if ok != true {
+		if !ok {
 			res = append(res, line)
 			continue
 		}
