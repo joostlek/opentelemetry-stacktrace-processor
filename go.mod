@@ -3,6 +3,7 @@ module github.com/joostlek/opentelemetry-stacktrace-processor
 go 1.19
 
 require (
+	github.com/go-sourcemap/sourcemap v2.1.3+incompatible
 	github.com/stretchr/testify v1.8.2
 	go.opentelemetry.io/collector v0.78.1
 	go.opentelemetry.io/collector/component v0.78.1
@@ -13,7 +14,6 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
