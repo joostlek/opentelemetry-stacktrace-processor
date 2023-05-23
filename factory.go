@@ -17,7 +17,9 @@ func NewFactory() processor.Factory {
 }
 
 func createDefaultConfig() component.Config {
-	return &Config{}
+	return &Config{
+		SourceMapDirs: make([]string, 0),
+	}
 }
 
 func createTraces(

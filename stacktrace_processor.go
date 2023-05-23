@@ -1,4 +1,4 @@
-package opentelemetry_stacktrace_processor
+package opentelemetry_stacktrace_processor // import "github.com/joostlek/opentelemetry-stacktrace-processor"
 
 import (
 	"context"
@@ -15,21 +15,24 @@ import (
 )
 
 type stackTraceProcessor struct {
-	nextConsumer consumer.Traces
-	sourceMaps   map[string][]byte
+	nextConsumer  consumer.Traces
+	sourceMaps    map[string][]byte
+	sourceMapDirs []string
 }
 
 func (s *stackTraceProcessor) Start(ctx context.Context, host component.Host) error {
 	s.sourceMaps = make(map[string][]byte)
-	files, err := os.ReadDir("testdata")
-	if err != nil {
-		return err
-	}
-	for _, file := range files {
-		if strings.HasSuffix(file.Name(), ".map") {
-			err := s.ReadSourceMap("testdata", file.Name())
-			if err != nil {
-				return err
+	for _, dir := range s.sourceMapDirs {
+		files, err := os.ReadDir(dir)
+		if err != nil {
+			return err
+		}
+		for _, file := range files {
+			if strings.HasSuffix(file.Name(), ".map") {
+				err := s.ReadSourceMap(dir, file.Name())
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -145,5 +148,5 @@ func (s *stackTraceProcessor) ConsumeException(event ptrace.SpanEvent) {
 var _ consumer.Traces = (*stackTraceProcessor)(nil)
 
 func newStackTraceProcessor(set processor.CreateSettings, next consumer.Traces, config *Config) (processor.Traces, error) {
-	return &stackTraceProcessor{nextConsumer: next}, nil
+	return &stackTraceProcessor{nextConsumer: next, sourceMapDirs: config.SourceMapDirs}, nil
 }

@@ -1,4 +1,4 @@
-package opentelemetry_stacktrace_processor
+package opentelemetry_stacktrace_processor // import "github.com/joostlek/opentelemetry-stacktrace-processor"
 
 import (
 	"context"
@@ -17,6 +17,8 @@ import (
 func TestBatchProcessorSpansDeliveredEnforceBatchSize(t *testing.T) {
 	sink := new(consumertest.TracesSink)
 	cfg := createDefaultConfig().(*Config)
+	cfg.SourceMapDirs = make([]string, 0)
+	cfg.SourceMapDirs = append(cfg.SourceMapDirs, "testdata")
 	creationSet := processortest.NewNopCreateSettings()
 	processor, err := newStackTraceProcessor(creationSet, sink, cfg)
 	require.NoError(t, err)

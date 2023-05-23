@@ -1,4 +1,4 @@
-package opentelemetry_stacktrace_processor
+package opentelemetry_stacktrace_processor // import "github.com/joostlek/opentelemetry-stacktrace-processor"
 
 import (
 	"github.com/stretchr/testify/assert"
