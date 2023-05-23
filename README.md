@@ -1,7 +1,7 @@
 # OpenTelemetry stacktrace processor
 
 [![GitHub Release][releases-shield]][releases]
-[![Go Reference](https://pkg.go.dev/badge/github.com/joostlek/opentelemetry-stacktrace-processo.svg)](https://pkg.go.dev/github.com/joostlek/opentelemetry-stacktrace-processo)
+[![Go Reference](https://pkg.go.dev/badge/github.com/joostlek/opentelemetry-stacktrace-processor.svg)](https://pkg.go.dev/github.com/joostlek/opentelemetry-stacktrace-processor)
 ![Project Stage][project-stage-shield]
 ![Project Maintenance][maintenance-shield]
 [![License][license-shield]](LICENSE.md)
