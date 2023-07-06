@@ -5,12 +5,12 @@ go 1.19
 require (
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible
 	github.com/stretchr/testify v1.8.4
-	go.opentelemetry.io/collector v0.80.0
+	go.opentelemetry.io/collector v0.81.0
 	go.opentelemetry.io/collector/component v0.81.0
 	go.opentelemetry.io/collector/confmap v0.81.0
-	go.opentelemetry.io/collector/consumer v0.80.0
+	go.opentelemetry.io/collector/consumer v0.81.0
 	go.opentelemetry.io/collector/pdata v1.0.0-rcv0013
-	go.opentelemetry.io/collector/processor v0.80.0
+	go.opentelemetry.io/collector/processor v0.81.0
 )
 
 require (
