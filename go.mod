@@ -1,6 +1,6 @@
 module github.com/joostlek/opentelemetry-stacktrace-processor
 
-go 1.19
+go 1.27.1
 
 require (
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible
